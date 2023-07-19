@@ -32,11 +32,19 @@ class Category(models.Model):
         verbose_name_plural = "Категории"
 
 
-class CustomCake(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='cakes')
+class Cake(models.Model):
+    # Модель для добавления тортов через админку для каталога
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='cakes', blank=True, null=True)
     price = models.IntegerField(
         verbose_name="Стоимость торта"
     )
+    # levels = 0
+    # form = 0
+    # topping = 0
+    # berries = 0
+    # decor = 0
+    # inscription = 0
+    # img = 0
 
     def __str__(self):
         return self.category
