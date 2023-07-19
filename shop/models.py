@@ -34,9 +34,18 @@ class Category(models.Model):
 
 class Cake(models.Model):
     # Модель для добавления тортов через админку для каталога
+    name = models.CharField('Название', max_length=100)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='cakes', blank=True, null=True)
     price = models.IntegerField(
         verbose_name="Стоимость торта"
+    )
+    image = models.ImageField(
+        'картинка'
+    )
+    description = models.TextField(
+        'описание',
+        max_length=200,
+        blank=True, null=True,
     )
     # levels = 0
     # form = 0
@@ -47,7 +56,7 @@ class Cake(models.Model):
     # img = 0
 
     def __str__(self):
-        return self.category
+        return self.name
 
     class Meta:
         verbose_name = "Торт"
