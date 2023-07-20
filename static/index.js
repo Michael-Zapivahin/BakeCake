@@ -25,7 +25,7 @@ Vue.createApp({
                         return true;
                     }
                     return ' топпинг';
-                }
+                },
             },
             schema2: {
                 name: (value) => {
@@ -129,6 +129,7 @@ Vue.createApp({
             Dates: null,
             Time: null,
             DelivComments: ''
+
         }
     },
     methods: {
@@ -146,3 +147,5 @@ Vue.createApp({
         }
     }
 }).mount('#VueApp')
+
+
