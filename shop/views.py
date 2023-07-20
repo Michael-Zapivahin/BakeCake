@@ -1,8 +1,10 @@
 import datetime
 
 from django.shortcuts import render
+from more_itertools import chunked
 
 from order.models import Order
+from .models import Cake
 
 CASTOM_CAKE = {
   'Levels': ['не выбрано', '1', '2', '3'],
@@ -58,4 +60,17 @@ def index(request):
     if "TOPPING" in request.GET:
         results = request.GET
         create_order(results)
+    return render(request, 'index.html')
+
+
+def show_catalog(request):
+    columns_count = 2
+    cakes = Cake.objects.all()
+    page_columns = list(chunked(cakes, columns_count))
+    return render(request, template_name='catalog.html', context={
+        'page_columns': page_columns,
+    })
+
+
+def show_main_page(request):
     return render(request, 'index.html')
