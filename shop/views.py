@@ -1,18 +1,22 @@
 import datetime
-
+from django.contrib.auth.views import LoginView
 from django.shortcuts import render
+
 from more_itertools import chunked
+
+from django.views.generic import TemplateView
+
 
 from order.models import Order
 from .models import Cake
 
 CASTOM_CAKE = {
-  'Levels': ['не выбрано', '1', '2', '3'],
-  'Forms': ['не выбрано', 'Круг', 'Квадрат', 'Прямоугольник'],
-  'Toppings': ['не выбрано', 'Без топпинга', 'Белый соус', 'Карамельный', 'Кленовый', 'Черничный',
-               'Молочный шоколад', 'Клубничный'],
-  'Berries': ['нет', 'Ежевика', 'Малина', 'Голубика', 'Клубника'],
-  'Decors': ['нет', 'Фисташки', 'Безе', 'Фундук', 'Пекан', 'Маршмеллоу', 'Марципан'],
+    'Levels': ['не выбрано', '1', '2', '3'],
+    'Forms': ['не выбрано', 'Круг', 'Квадрат', 'Прямоугольник'],
+    'Toppings': ['не выбрано', 'Без топпинга', 'Белый соус', 'Карамельный', 'Кленовый', 'Черничный',
+                 'Молочный шоколад', 'Клубничный'],
+    'Berries': ['нет', 'Ежевика', 'Малина', 'Голубика', 'Клубника'],
+    'Decors': ['нет', 'Фисташки', 'Безе', 'Фундук', 'Пекан', 'Маршмеллоу', 'Марципан'],
 }
 
 
@@ -37,9 +41,11 @@ def create_order(results):
     deliv_date = date_time_obj.date()
     deliv_time = date_time_obj.time()
     deliv_comment = results["DELIVCOMMENTS"]
+    price = results["PRICE"]
 
     Order.objects.create(
         name=name,
+        price=price,
         phonenumber=phone,
         address=address,
         comment=comment,
@@ -74,3 +80,4 @@ def show_catalog(request):
 
 def show_main_page(request):
     return render(request, 'index.html')
+
