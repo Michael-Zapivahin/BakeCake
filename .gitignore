@@ -142,3 +142,4 @@ cython_debug/
 /static/.gitkeep
 .idea/
 /.handler-saves/
+.DS_Store

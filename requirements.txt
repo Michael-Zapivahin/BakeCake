@@ -3,3 +3,4 @@ environs~=9.5.0
 aiogram~=2.25.1
 
 asgiref~=3.7.2
+Pillow==9.0.*
