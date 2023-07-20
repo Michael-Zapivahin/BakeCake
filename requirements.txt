@@ -4,3 +4,4 @@ aiogram~=2.25.1
 
 asgiref~=3.7.2
 Pillow==9.0.*
+more-itertools==9.1.0

@@ -23,5 +23,7 @@ from . import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index),
+    path('step2', views.show_catalog),
+    path('main', views.show_main_page),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
