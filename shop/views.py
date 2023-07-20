@@ -1,14 +1,18 @@
 import datetime
+import re
+
+from django.contrib.auth.models import User
 from django.contrib.auth.views import LoginView
-from django.shortcuts import render
+from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404
+from django.urls import reverse
 
 from more_itertools import chunked
 
 from django.views.generic import TemplateView
 
-
 from order.models import Order
-from .models import Cake
+from .models import Cake, Category
 
 CASTOM_CAKE = {
     'Levels': ['не выбрано', '1', '2', '3'],
@@ -18,6 +22,22 @@ CASTOM_CAKE = {
     'Berries': ['нет', 'Ежевика', 'Малина', 'Голубика', 'Клубника'],
     'Decors': ['нет', 'Фисташки', 'Безе', 'Фундук', 'Пекан', 'Маршмеллоу', 'Марципан'],
 }
+
+
+def save(self, commit=True):
+    # создание нового пользователя
+    user = User.objects.create_user(
+        username=self.cleaned_data['username'],
+        password=self.cleaned_data['password']
+    )
+    return user
+
+
+phone_number_regex = re.compile(r'^\+?[1-9]\d{1,14}$')
+
+
+def is_valid_phone_number(phone_number):
+    return phone_number_regex.match(phone_number) is not None
 
 
 def create_order(results):
@@ -45,6 +65,7 @@ def create_order(results):
 
     Order.objects.create(
         name=name,
+        title='Кастомный тортец',
         price=price,
         phonenumber=phone,
         address=address,
@@ -63,21 +84,87 @@ def create_order(results):
 
 
 def index(request):
+    if request.POST:
+        if "REG" in request.POST:
+            user_phone = None
+            user_password = None
+            if is_valid_phone_number(request.POST['REG']):
+                user_phone = request.POST['REG']
+                user = User.objects.filter(username=user_phone)
+            else:
+                user = User.objects.filter(username=user_phone)
+                if user:
+                    pass
+                else:
+                    user = User.objects.create_user(
+                        username=user_phone,
+                        password=user_password
+                    )
+                user_password = request.POST['REG']
+            print(user_phone)
     if "TOPPING" in request.GET:
         results = request.GET
         create_order(results)
     return render(request, 'index.html')
 
 
-def show_catalog(request):
+def show_catalog(request, category_slug=None):
     columns_count = 2
     cakes = Cake.objects.all()
+    category = None
+    categories = Category.objects.all()
+    products = Cake.objects.all()
+    if category_slug:
+        category = get_object_or_404(Category, slug=category_slug)
+        products = Cake.objects.filter(category=category)
+
     page_columns = list(chunked(cakes, columns_count))
-    return render(request, template_name='catalog.html', context={
+    context = {
+        'category': category,
+        'categories': categories,
+        'products': products,
         'page_columns': page_columns,
-    })
+    }
+
+    return render(request, template_name='catalog.html', context=context)
 
 
 def show_main_page(request):
     return render(request, 'index.html')
 
+
+def create_detail_order(results):
+    cake_pk = int(results["CAKE_PK"])
+    date_time_str = f'{results["date"]} {results["time"]}'
+    date_time_obj = datetime.datetime.strptime(date_time_str, '%Y-%m-%d %H:%M')
+    deliv_date = date_time_obj.date()
+    deliv_time = date_time_obj.time()
+
+    Order.objects.create(
+        # ready_cake=cake_pk,
+        title=results["TITLE"],
+        name=results["NAME"],
+        price=results["PRICE"],
+        phonenumber=results["PHONE"],
+        address=results["ADDRESS"],
+        delivery_date=deliv_date,
+        delivery_time=deliv_time,
+        deliv_comment=results["DELIVCOMMENTS"],
+        email=results["EMAIL"]
+    )
+
+
+def product_detail(request, pk):
+    product = get_object_or_404(Cake, pk=pk)
+    # category = product.category
+    context = {
+        'product': product,
+        # 'category': category,
+    }
+    if request.POST:
+        print(request.POST)
+        if "TITLE" in request.POST:
+            results = request.POST
+            create_detail_order(results)
+            return render(request, 'index.html')
+    return render(request, 'detail.html', context)

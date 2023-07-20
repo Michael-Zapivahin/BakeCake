@@ -1,8 +1,17 @@
 from django.db import models
 from django.utils import timezone
 
+from shop.models import Cake
+
 
 class Order(models.Model):
+    ready_cake = models.ForeignKey(Cake, on_delete=models.CASCADE, related_name='order_cakes', blank=True, null=True)
+    title = models.CharField(
+        'Название торта',
+        max_length=90,
+        blank=True,
+        null=True
+    )
     name = models.CharField(
         'Имя заказчика',
         max_length=20

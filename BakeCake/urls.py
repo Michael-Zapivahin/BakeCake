@@ -18,12 +18,14 @@ from django.urls import path
 from django.conf.urls.static import static
 
 from shop import views
+from shop.views import product_detail
 from . import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index),
     path('step2', views.show_catalog),
-    path('main', views.show_main_page),
+    path('main', views.show_main_page, name='main'),
+    path('<int:pk>', product_detail, name='product_detail'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
