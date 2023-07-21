@@ -1,10 +1,9 @@
 import datetime
 import re
 
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
-from django.contrib.auth.views import LoginView
-from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 
 from more_itertools import chunked
@@ -12,7 +11,9 @@ from more_itertools import chunked
 from django.views.generic import TemplateView
 
 from order.models import Order
-from .models import Cake, Category
+from .backends import LoginBackend
+from .forms import CustomLoginForm
+from .models import Cake, Category, CustomUser
 
 CASTOM_CAKE = {
     'Levels': ['не выбрано', '1', '2', '3'],
@@ -22,16 +23,6 @@ CASTOM_CAKE = {
     'Berries': ['нет', 'Ежевика', 'Малина', 'Голубика', 'Клубника'],
     'Decors': ['нет', 'Фисташки', 'Безе', 'Фундук', 'Пекан', 'Маршмеллоу', 'Марципан'],
 }
-
-
-def save(self, commit=True):
-    # создание нового пользователя
-    user = User.objects.create_user(
-        username=self.cleaned_data['username'],
-        password=self.cleaned_data['password']
-    )
-    return user
-
 
 phone_number_regex = re.compile(r'^\+?[1-9]\d{1,14}$')
 
@@ -83,28 +74,44 @@ def create_order(results):
     )
 
 
+def add_user(results):
+    try:
+        user = CustomUser.objects.get(phone_number=results["PHONE"])
+    except CustomUser.DoesNotExist:
+        CustomUser.objects.create_user(
+            phone_number=results["PHONE"],
+            first_name=results["NAME"],
+            email=results["EMAIL"],
+        )
+        return 'success'
+
+
 def index(request):
-    if request.POST:
-        if "REG" in request.POST:
-            user_phone = None
-            user_password = None
-            if is_valid_phone_number(request.POST['REG']):
-                user_phone = request.POST['REG']
-                user = User.objects.filter(username=user_phone)
+    if "REG" in request.GET:
+        if is_valid_phone_number(str(request.GET.get('REG'))):
+            user_phone = request.GET['REG']
+            # Проверяем, существует ли пользователь с таким номером телефона
+            try:
+                user = CustomUser.objects.get(phone_number=user_phone)
+            except CustomUser.DoesNotExist:
+                # Если пользователя нет, то создаем нового пользователя
+                user = CustomUser.objects.create_user(
+                    phone_number=user_phone,
+                )
+                user.save()
             else:
-                user = User.objects.filter(username=user_phone)
-                if user:
-                    pass
-                else:
-                    user = User.objects.create_user(
-                        username=user_phone,
-                        password=user_password
-                    )
-                user_password = request.POST['REG']
-            print(user_phone)
+                form = CustomLoginForm(initial={'username': user_phone})
+                user = form.get_user()
+            user = authenticate(request, username=user_phone, backend=LoginBackend)
+            if user is not None:
+                # Авторизуем пользователя в системе
+                login(request, user)
+            return redirect('main')
+
     if "TOPPING" in request.GET:
         results = request.GET
         create_order(results)
+        add_user(results)
     return render(request, 'index.html')
 
 
@@ -141,7 +148,7 @@ def create_detail_order(results):
     deliv_time = date_time_obj.time()
 
     Order.objects.create(
-        # ready_cake=cake_pk,
+        ready_cake=cake_pk,
         title=results["TITLE"],
         name=results["NAME"],
         price=results["PRICE"],
@@ -162,7 +169,6 @@ def product_detail(request, pk):
         # 'category': category,
     }
     if request.POST:
-        print(request.POST)
         if "TITLE" in request.POST:
             results = request.POST
             create_detail_order(results)

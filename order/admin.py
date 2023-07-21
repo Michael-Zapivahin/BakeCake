@@ -2,12 +2,17 @@ from django.contrib import admin
 from django.utils.html import format_html
 
 from .models import Order
-from shop.models import Cake, Category
+from shop.models import Cake, Category, CustomUser
 
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ['title']
+
+
+@admin.register(CustomUser)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ['first_name', 'phone_number']
 
 
 @admin.register(Order)

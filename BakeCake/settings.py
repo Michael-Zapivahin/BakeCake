@@ -107,8 +107,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
-
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 MEDIA_URL = '/media/'
@@ -117,8 +115,14 @@ STATIC_ROOT = os.getenv('STATIC_ROOT', default='./assets')
 
 STATIC_URL = os.getenv('STATIC_URL', default='/static/')
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-
+AUTH_USER_MODELS = 'shop.CustomUser'
+AUTHENTICATION_BACKENDS = [
+    'shop.backends.LoginBackend',
+    'django.contrib.auth.backends.ModelBackend',
+    'django.contrib.auth.backends.AllowAllUsersModelBackend',  
+]
+# AUTH_PASSWORD_REQUIRED = False
+# AUTHENTICATION_ALLOW_NONEXISTENT_USER = True
