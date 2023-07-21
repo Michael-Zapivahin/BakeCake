@@ -136,6 +136,10 @@ def show_catalog(request, category_slug=None):
     return render(request, template_name='catalog.html', context=context)
 
 
+def show_agreement(request):
+    return render(request, 'agreement.html')
+
+
 def show_main_page(request):
     return render(request, 'index.html')
 
