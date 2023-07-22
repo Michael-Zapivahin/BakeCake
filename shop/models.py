@@ -1,44 +1,11 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 
-class CustomUserManager(BaseUserManager):
-    def create_user(self, phone_number, password=None, **kwargs):
-        if not phone_number:
-            raise ValueError('Phone number must be set.')
-
-        user = self.model(
-            phone_number=phone_number,
-            **kwargs
-        )
-
-        user.set_password(password)
-        user.save(using=self._db)
-
-        return user
-
-    def create_superuser(self, phone_number, password=None, **kwargs):
-        kwargs.setdefault('is_staff', True)
-        kwargs.setdefault('is_superuser', True)
-
-        return self.create_user(phone_number, password, **kwargs)
-
-
-class CustomUser(AbstractBaseUser):
+class CustomUser(models.Model):
     phone_number = models.CharField(max_length=20, unique=True)
-    first_name = models.CharField(max_length=50, blank=True, null=True)
-    email = models.EmailField(blank=True, null=True)
-
-    objects = CustomUserManager()
-
-    USERNAME_FIELD = 'phone_number'
-    REQUIRED_FIELDS = ['first_name',  'email']
 
     def __str__(self):
         return self.phone_number
-
-    def get_full_name(self):
-        return f"{self.first_name} {self.email}"
 
 
 class Client(models.Model):
@@ -87,13 +54,6 @@ class Cake(models.Model):
         max_length=200,
         blank=True, null=True,
     )
-    # levels = 0
-    # form = 0
-    # topping = 0
-    # berries = 0
-    # decor = 0
-    # inscription = 0
-    # img = 0
 
     def __str__(self):
         return self.name
@@ -101,5 +61,3 @@ class Cake(models.Model):
     class Meta:
         verbose_name = "Торт"
         verbose_name_plural = "Торты"
-
-

@@ -1,18 +1,12 @@
 import datetime
 import re
-
-from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse
 
 from more_itertools import chunked
 
-from django.views.generic import TemplateView
-
 from order.models import Order
-from .backends import LoginBackend
-from .forms import CustomLoginForm
+from .forms import CustomAuthenticationForm
 from .models import Cake, Category, CustomUser
 
 CASTOM_CAKE = {
@@ -23,6 +17,7 @@ CASTOM_CAKE = {
     'Berries': ['нет', 'Ежевика', 'Малина', 'Голубика', 'Клубника'],
     'Decors': ['нет', 'Фисташки', 'Безе', 'Фундук', 'Пекан', 'Маршмеллоу', 'Марципан'],
 }
+
 
 phone_number_regex = re.compile(r'^\+?[1-9]\d{1,14}$')
 
@@ -76,42 +71,24 @@ def create_order(results):
 
 def add_user(results):
     try:
-        user = CustomUser.objects.get(phone_number=results["PHONE"])
-    except CustomUser.DoesNotExist:
-        CustomUser.objects.create_user(
-            phone_number=results["PHONE"],
-            first_name=results["NAME"],
-            email=results["EMAIL"],
+        user = User.objects.get(username=results["PHONE"])
+        user.first_name = results["NAME"]
+        user.email = results["EMAIL"]
+        user.save()
+    except User.DoesNotExist:
+        user = CustomUser.objects.get_or_create(
+            phone_number=results["PHONE"]
         )
-        return 'success'
+        return user
 
 
 def index(request):
-    if "REG" in request.GET:
-        if is_valid_phone_number(str(request.GET.get('REG'))):
-            user_phone = request.GET['REG']
-            # Проверяем, существует ли пользователь с таким номером телефона
-            try:
-                user = CustomUser.objects.get(phone_number=user_phone)
-            except CustomUser.DoesNotExist:
-                # Если пользователя нет, то создаем нового пользователя
-                user = CustomUser.objects.create_user(
-                    phone_number=user_phone,
-                )
-                user.save()
-            else:
-                form = CustomLoginForm(initial={'username': user_phone})
-                user = form.get_user()
-            user = authenticate(request, username=user_phone, backend=LoginBackend)
-            if user is not None:
-                # Авторизуем пользователя в системе
-                login(request, user)
-            return redirect('main')
-
     if "TOPPING" in request.GET:
         results = request.GET
         create_order(results)
-        add_user(results)
+        add = add_user(results)
+        if add:
+            return render(request, 'payment.html', {'results': results})
     return render(request, 'index.html')
 
 
@@ -142,6 +119,17 @@ def show_agreement(request):
 
 def show_main_page(request):
     return render(request, 'index.html')
+
+
+def register(request):
+    if request.method == 'POST':
+        form = CustomAuthenticationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')
+    else:
+        form = CustomAuthenticationForm()
+    return render(request, 'registration/register.html', {'form': form})
 
 
 def create_detail_order(results):
@@ -178,3 +166,22 @@ def product_detail(request, pk):
             create_detail_order(results)
             return render(request, 'index.html')
     return render(request, 'detail.html', context)
+
+
+def show_lk_page(request):
+    user = request.user
+    phonenumber = user.username
+    orders = Order.objects.filter(phonenumber=phonenumber)
+    if request.GET:
+        user.first_name = request.GET['NAME']
+        user.email = request.GET['EMAIL']
+        user.save()
+    context = {
+        'user': user,
+        'orders': orders,
+    }
+    return render(request, 'lk.html', context)
+
+
+def payment(request, context):
+    return render(request, 'payment.html', context)

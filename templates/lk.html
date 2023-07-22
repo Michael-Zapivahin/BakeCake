@@ -1,16 +1,33 @@
 {% extends "base.html" %}
 {% load static %}
+{% block title %}
+	<title>Личный кабинет</title>
+{% endblock %}
 {% block content %}
-
+{% include 'navbar.html' %}
+<main>
 <div class="container mt-header mb-5">
+		<aside class="modal fade" id="RegModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="RegModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content px-4 cake__modal">
+					<div class="modal-header border-0 pb-0 pt-4">
+						<button @click="Reset" type="button" class="btn-close border rounded-pill" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-header border-0 py-0">
+						<label for="reg" class="modal-title font_Gogh fs_40 cake_blue" id="RegModalLabel"><a href="{% url 'login' %}">Вход</a> / <a href="{% url 'register' %}">Регистрация</a></label>
+					</div>
+
+				</div>
+			</div>
+		</aside>
 	<div class="row mt-5">
 		<div class="col-12 col-xxl-6 d-flex justify-content-center">
 			<div><img src="img/Cake2.png" alt=""></div>
 		</div>
 		<div class="col-12 col-xxl-6 d-flex flex-column justify-content-center align-items-center align-items-xxl-start" id="LK">
 			<form class="d-none">
+				{% csrf_token %}
 				<input v-model="Name" name="NAME">
-				<input v-model="Phone" name="PHONE">
 				<input v-model="Email" name="EMAIL">
 				<button type="submit" ref="HiddenFormSubmit">Apply Changes</button>
 			</form>
@@ -46,8 +63,9 @@
 							<error-message name="name_format" class="position-absolute bottom-0 cake_pink fs_12"></error-message>
 						</li>
 						<li class="list-group-item border-0 py-61 position-relative">
-							<v-field v-model="Phone" type="text" name="phone_format" id="phone" :readonly="!Edit" class="form-control my-2 cake__textinput"></v-field>
-							<error-message name="phone_format" class="position-absolute bottom-0 cake_pink fs_12"></error-message>
+							<span id="phone" :readonly="!Edit" class="form-control my-2 cake__textinput">{{ user.username }}</span>
+<!--							<v-field v-model="Phone" type="text" name="phone_format" id="phone" :readonly="!Edit" class="form-control my-2 cake__textinput"></v-field>-->
+<!--							<error-message name="phone_format" class="position-absolute bottom-0 cake_pink fs_12"></error-message>-->
 						</li>
 						<li class="list-group-item border-0 py-61 position-relative">
 							<v-field v-model="Email" type="text" name="email_format" id="email" :readonly="!Edit" class="form-control my-2 cake__textinput"></v-field>
@@ -57,12 +75,112 @@
 				</div>
 			</v-form>
 			<h2 class="fs_40 cake_pink mt-5">Мои заказы</h2>
-			<span class="cake_grey">У вас еще нет заказов.</span>
-			<p class="cake_grey">Вы можете добавить торт из <a href="./index.html#step2" class="text-decoration-none cake_pink">Каталога</a> или <a href="./index.html#step3" class="text-decoration-none cake_pink">Создать свой</a>.</p>
-			<span class="cake_grey">Есть вопросы?</span>
-			<span class="cake_grey">Воспользуйтесь нашим <a href="https://vk.com/devmanorg" class="text-decoration-none cake_pink">чат-ботом</a>.</span>
-			<button class="btn text-white rounded-pill align-self-end px-5 mt-3 shadow-none cake__button cake__bg_pink">Выйти</button>
+			{% if orders %}
+				{% for order in orders %}
+					<section class="my-2">
+						<span class="cake_blue lk__order d-flex" data-bs-toggle="modal" data-bs-target="#OrderModal2">
+							<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-clock-fill" viewBox="0 0 16 16">
+								<path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+							</svg>
+							<span class="ms-1">{{ order.title }}</span>
+						</span>
+						<aside class="modal fade" id="OrderModal2" tabindex="-1" aria-labelledby="ModalLabel2" aria-hidden="true">
+							<div class="modal-dialog">
+								<div class="modal-content">
+									<div class="modal-header">
+										<h5 class="modal-title cake_pink" id="ModalLabel2">{{ order.title }}</h5>
+										<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+									</div>
+									<div class="modal-body">
+										<span class="cake_blue">Уровней: {{ order.levels }}</span><br>
+										<span class="cake_blue">Форма: {{ order.form }}</span><br>
+										<span class="cake_blue">Топпинг: {{ order.topping }}</span><br>
+										<span class="cake_blue">Ягоды: {{ order.berries }}</span><br>
+										<span class="cake_blue">Декор: {{ order.decor }}</span><br>
+										<span class="cake_blue">{{ order.inscription }}</span><br>
+										<span class="cake_pink">Цена: {{ order.price }}₽</span>
+									</div>
+									<div class="modal-footer d-flex justify-content-between">
+										{% if order.is_active %}
+											<span class="cake_blue d-flex">Статус: В доставке</span>
+											<span class="cake_blue d-flex align-items-center">Время доставки: ?</span>
+										{% else %}
+											<span class="cake_blue d-flex">Статус: Доставлен</span>
+										{% endif %}
+									</div>
+								</div>
+							</div>
+						</aside>
+					</section>
+				{% endfor %}
+				<a href="logout" class="btn text-white rounded-pill align-self-end px-5 mt-3 shadow-none cake__button cake__bg_pink">Выйти</a>
+			{% else %}
+				<span class="cake_grey">У вас еще нет заказов.</span>
+				<p class="cake_grey">Вы можете добавить торт из <a href="{% url 'catalog' %}" class="text-decoration-none cake_pink">Каталога</a> или <a href="{% url 'main' %}" class="text-decoration-none cake_pink">Создать свой</a>.</p>
+				<span class="cake_grey">Есть вопросы?</span>
+				<span class="cake_grey">Воспользуйтесь нашим <a href="https://vk.com/devmanorg" class="text-decoration-none cake_pink">чат-ботом</a>.</span>
+				<button class="btn text-white rounded-pill align-self-end px-5 mt-3 shadow-none cake__button cake__bg_pink">Выйти</button>
+			{% endif %}
 		</div>
 	</div>
 </div>
+</main>
+<script>
+Vue.createApp({
+    components: {
+        VForm: VeeValidate.Form,
+        VField: VeeValidate.Field,
+        ErrorMessage: VeeValidate.ErrorMessage,
+    },
+    data() {
+        return {
+            Edit: false,
+            Name: '{{ user.first_name }}',
+<!--            Phone: '{{ user.username }}',-->
+            Email: '{{ user.email }}',
+            Schema: {
+                name_format: (value) => {
+                    const regex = /^[a-zA-Zа-яА-я]+$/
+                    if (!value) {
+                        return '⚠ Поле не может быть пустым';
+                    }
+                    if ( !regex.test(value)) {
+
+                        return '⚠ Недопустимые символы в имени';
+                    }
+                    return true;
+                },
+<!--                phone_format: (value) => {-->
+<!--                    const regex = /^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$/-->
+<!--                    if (!value) {-->
+<!--                        return '⚠ Поле не может быть пустым';-->
+<!--                    }-->
+<!--                    if ( !regex.test(value)) {-->
+
+<!--                        return '⚠ Формат телефона нарушен';-->
+<!--                    }-->
+<!--                    return true;-->
+<!--                },-->
+                email_format: (value) => {
+                    const regex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i
+                    if (!value) {
+                        return '⚠ Поле не может быть пустым';
+                    }
+                    if ( !regex.test(value)) {
+
+                        return '⚠ Формат почты нарушен';
+                    }
+                    return true;
+                }
+            }
+        }
+    },
+    methods: {
+        ApplyChanges() {
+            this.Edit = false
+            this.$refs.HiddenFormSubmit.click()
+        }
+    }
+}).mount('#LK')
+</script>
 {% endblock content %}

@@ -12,7 +12,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(CustomUser)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ['first_name', 'phone_number']
+    list_display = ['phone_number']
 
 
 @admin.register(Order)

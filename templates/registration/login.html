@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %}
+	<title>Тортики</title>
+{% endblock %}
+{% block content %}
+{% include 'navbar.html' %}
+<main>
+	<div class="container mt-header">
+        <aside class="modal fade" id="RegModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="RegModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-dialog-centered">
+				<div class="modal-content px-4 cake__modal">
+					<div class="modal-header border-0 pb-0 pt-4">
+						<button @click="Reset" type="button" class="btn-close border rounded-pill" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-header border-0 py-0">
+						<label for="reg" class="modal-title font_Gogh fs_40 cake_blue" id="RegModalLabel"><a href="{% url 'login' %}">Вход</a> / <a href="{% url 'register' %}">Регистрация</a></label>
+					</div>
+
+				</div>
+			</div>
+		</aside>
+        <article class="row position-relative">
+            <div class="content-section mb-400">
+                <form method="POST" class='form-group' style="width: 30vw;">
+                    {% csrf_token %}
+                    <fieldset class="form-group">
+                        <legend class="border-bottom mb-4">Вход</legend>
+                        {{ form|crispy }}
+                    </fieldset>
+                    <div class="form-group">
+                        <button class="btn btn-outline-info" type="submit">Войти</button>
+                    </div>
+                </form>
+                <div class="border-top pt-3">
+                    <small class="text-muted">
+                        Нужен аккаунт? <a class="ml-2" href="{% url 'register' %}">Регистрация</a>
+                    </small>
+                </div>
+            </div>
+        </article>
+    </div>
+</main>
+<!--<form method="post" action="{% url 'login' %}" class="modal-header border-0 pb-0 pt-4">-->
+<!--{% csrf_token %}-->
+<!--<table>-->
+
+<!--<tr>-->
+<!--  <td>{{ form.username.label_tag }}</td>-->
+<!--  <td>{{ form.username }}</td>-->
+<!--</tr>-->
+
+<!--<tr>-->
+<!--  <td>{{ form.password.label_tag }}</td>-->
+<!--  <td>{{ form.password }}</td>-->
+<!--</tr>-->
+<!--</table>-->
+
+<!--<input type="submit" value="login" />-->
+<!--<input type="hidden" name="next" value="{{ next }}" />-->
+<!--</form>-->
+{% endblock content %}

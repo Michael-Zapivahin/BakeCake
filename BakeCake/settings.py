@@ -28,7 +28,12 @@ INSTALLED_APPS = [
     'shop',
     'order',
     'bot',
+    'crispy_forms',
+    "crispy_bootstrap4",
 ]
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
+CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -115,14 +120,7 @@ STATIC_ROOT = os.getenv('STATIC_ROOT', default='./assets')
 
 STATIC_URL = os.getenv('STATIC_URL', default='/static/')
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.2/howto/static-files/
 
-AUTH_USER_MODELS = 'shop.CustomUser'
-AUTHENTICATION_BACKENDS = [
-    'shop.backends.LoginBackend',
-    'django.contrib.auth.backends.ModelBackend',
-    'django.contrib.auth.backends.AllowAllUsersModelBackend',  
-]
-# AUTH_PASSWORD_REQUIRED = False
-# AUTHENTICATION_ALLOW_NONEXISTENT_USER = True
+LOGIN_URL = 'login'
+DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S.%f'
+TIME_FORMAT = '%H:%M:%S.%f'

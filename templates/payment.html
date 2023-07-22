@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+    {% block content %}
+{% include 'navbar.html' %}
+<main>
+	<div class="container mt-header">
+        <article class="row position-relative">
+            <div class="content-section mb-400">
+                <div class="card card text-bg-secondary mb-6" style="width: 38rem;">
+                  <h3 class="text-center">Оплата Торта от "BakeCake"</h3>
+                  <form method="POST" action="{% url 'main' %}">
+                    <div class="col-sm-8 mt-10">
+                    <label class="col-sm-16 col-form-label">Сумма услуги ₽</label>
+                    <input type="text" value="{{ results.PRICE }}" class="form-control bg-info">
+                    <label class="col-sm-12 col-form-label">ЮMoney №</label>
+                    <input type="text" name="receiver" value="4100117804701310" class="form-control bg-info" readonly>
+                  </div>
+                  <div class="form-group form-check mt-4">
+                    <input type="radio" name="paymentType" value="PC" class="form-check-input">
+                    <label class="form-check-label">ЮMoney Деньгами</label>
+                  </div>
+                <div class="form-group form-check mt-4">
+                  <input type="radio" name="paymentType" value="AC" class="form-check-input">
+                  <label class="form-check-label">Банковской картой</label>
+                </div>
+                <h4 class="text-center"> О покупателе </h4>
+                <div class="col-sm-8 mt-3">
+                  <input type="text" class="form-control mb-4 bg-info" value="{{ results.NAME }}">
+                  <input type="text" class="form-control mb-4 bg-info"  value="{{ results.PHONE}}" >
+                  <input type="submit" value="Перевести {{ results.PRICE}} р " class="btn btn-info">
+                </div>
+                </form>
+                <h6 class="mt-5"> Вы будете перенаправлены на защитный протокол для оплаты в Юkassa </h6>
+                </div>
+            </div>
+        </article>
+    </div>
+</main>
+    {% endblock content %}

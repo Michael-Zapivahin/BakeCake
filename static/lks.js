@@ -7,7 +7,7 @@ Vue.createApp({
     data() {
         return {
             Edit: false,
-            Name: 'Ирина',
+            Name: '{{ context.name }}',
             Phone: '8 909 000-00-00',
             Email: 'nyam@gmail.com',
             Schema: {

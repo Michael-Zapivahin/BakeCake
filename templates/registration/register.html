@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+{% include 'navbar.html' %}
+<main>
+    <div class="container mt-header">
+        <article class="row position-relative">
+            <div class="content-section mb-400">
+                <form method="POST">
+                    {% csrf_token %}
+                    <fieldset class="form-group">
+                        <legend class="border-bottom mb-4">Добро пожаловать в клуб Тортов</legend>
+                        {{ form.as_p }}
+                    </fieldset>
+                    <div class="form-group">
+                        <button class="btn btn-outline-info" type="submit">Регистрация</button>
+                    </div>
+                </form>
+                <div class="border-top pt-3">
+                    <small class="text-muted">
+                        Уже есть аккаунт? <a class="ml-2" href="{% url 'login' %}">Вход</a>
+                    </small>
+                </div>
+            </div>
+        </article>
+    </div>
+</main>
+{% endblock content %}

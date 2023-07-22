@@ -6,6 +6,7 @@ import logging
 from aiogram import Bot, Dispatcher, types
 from bot.handlers.common import register_handlers_common
 from bot.handlers.admin import register_handlers_admin
+from bot.handlers.fuck_u import register_handlers_fuck_u
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,7 @@ async def main():
     dp = Dispatcher(bot, storage=MemoryStorage())
     register_handlers_common(dp, admin_id)
     register_handlers_admin(dp)
+    register_handlers_fuck_u(dp)
 
     # Запуск поллинга
 
