@@ -36,7 +36,6 @@
 										<h5 class="card-title">{{ product.name }}</h5>
 										<p class="card-text">{{ product.price }}</p>
 										<p><span class="badge badge-light">{{ product.description|linebreaks }}</span></p>
-										<p class="card-text"><a href="{{ cake_card.id }}" target="_blank">Заказать</a></p>
 									</div>
 								</div>
 							</div>
@@ -46,7 +45,7 @@
 			</div>
 		</article>
 		<!--action="{% url 'main' %}"-->
-		<form  method="post" id='form_buying_product' class='form-group'>
+		<form  method="POST" id='form_buying_product' class='form-group'>
 			{% csrf_token %}
 			<textarea type="text" name="PRICE" class="d-none">{{ product.price }}</textarea>
 			<br>

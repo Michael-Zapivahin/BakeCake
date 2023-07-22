@@ -134,13 +134,14 @@ def register(request):
 
 def create_detail_order(results):
     cake_pk = int(results["CAKE_PK"])
+    cake = Cake.objects.get(pk=cake_pk)
     date_time_str = f'{results["date"]} {results["time"]}'
     date_time_obj = datetime.datetime.strptime(date_time_str, '%Y-%m-%d %H:%M')
     deliv_date = date_time_obj.date()
     deliv_time = date_time_obj.time()
 
     Order.objects.create(
-        ready_cake=cake_pk,
+        ready_cake=cake,
         title=results["TITLE"],
         name=results["NAME"],
         price=results["PRICE"],
@@ -164,7 +165,7 @@ def product_detail(request, pk):
         if "TITLE" in request.POST:
             results = request.POST
             create_detail_order(results)
-            return render(request, 'index.html')
+            return render(request, 'payment.html', {'results': results})
     return render(request, 'detail.html', context)
 
 
