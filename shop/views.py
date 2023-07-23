@@ -1,5 +1,6 @@
 import datetime
 import re
+import requests
 from django.contrib.auth.models import User
 from django.shortcuts import render, get_object_or_404, redirect
 
@@ -9,6 +10,7 @@ from order.models import Order
 from .forms import CustomAuthenticationForm
 from .models import Cake, Category, CustomUser
 from .pay import pay
+from BakeCake.settings import BITLY_AUTH_TOKEN
 
 CASTOM_CAKE = {
     'Levels': ['не выбрано', '1', '2', '3'],
@@ -142,6 +144,25 @@ def register(request):
     else:
         form = CustomAuthenticationForm()
     return render(request, 'registration/register.html', {'form': form})
+
+
+def count_clicks(bitlink, token=BITLY_AUTH_TOKEN):
+    api_endpoint = f'https://api-ssl.bitly.com/v4/bitlinks/{bitlink}/clicks/summary'
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+    response = requests.get(api_endpoint, headers=headers)
+    response.raise_for_status()
+    total_clicks = response.json()['total_clicks']
+    return total_clicks
+
+
+def clicks(request):
+    clicks_quantity = 0
+    if request.method == 'POST':
+        bitlink = request.POST.get("bitlinky", False)
+        clicks_quantity = count_clicks(bitlink)
+    return render(request, 'count_clicks.html', {'clicks_quantity': clicks_quantity})
 
 
 def create_detail_order(results):
