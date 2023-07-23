@@ -15,6 +15,7 @@ DEBUG = env.bool('DEBUG', True)
 
 TELEGRAM_BOT_API_KEY = env.str('TELEGRAM_BOT_API_KEY')
 TELEGRAM_ADMIN_ID = env.int('TELEGRAM_ADMIN_ID')
+BITLY_AUTH_TOKEN = env.str('BITLY_AUTH_TOKEN')
 
 # Application definition
 
