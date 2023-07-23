@@ -8,6 +8,7 @@ from more_itertools import chunked
 from order.models import Order
 from .forms import CustomAuthenticationForm
 from .models import Cake, Category, CustomUser
+from .pay import pay
 
 CASTOM_CAKE = {
     'Levels': ['не выбрано', '1', '2', '3'],
@@ -17,7 +18,6 @@ CASTOM_CAKE = {
     'Berries': ['нет', 'Ежевика', 'Малина', 'Голубика', 'Клубника'],
     'Decors': ['нет', 'Фисташки', 'Безе', 'Фундук', 'Пекан', 'Маршмеллоу', 'Марципан'],
 }
-
 
 phone_number_regex = re.compile(r'^\+?[1-9]\d{1,14}$')
 
@@ -49,7 +49,7 @@ def create_order(results):
     deliv_comment = results["DELIVCOMMENTS"]
     price = results["PRICE"]
 
-    Order.objects.create(
+    order = Order.objects.create(
         name=name,
         title='Кастомный тортец',
         price=price,
@@ -67,6 +67,7 @@ def create_order(results):
         deliv_comment=deliv_comment,
         email=email
     )
+    return order
 
 
 def add_user(results):
@@ -85,10 +86,21 @@ def add_user(results):
 def index(request):
     if "TOPPING" in request.GET:
         results = request.GET
-        create_order(results)
+        order = create_order(results)
         add = add_user(results)
-        if add:
-            return render(request, 'payment.html', {'results': results})
+        print('create_order')
+        if create_order:
+            price = order.price
+            phone = order.phonenumber
+            email = order.email
+            title = order.title
+            order_number = order.pk
+
+            create_pay = pay(price, phone, email, title, order_number)
+
+            print(create_pay["confirmation"])
+            url = create_pay["confirmation"]["confirmation_url"]
+            return redirect(url)
     return render(request, 'index.html')
 
 
@@ -140,7 +152,7 @@ def create_detail_order(results):
     deliv_date = date_time_obj.date()
     deliv_time = date_time_obj.time()
 
-    Order.objects.create(
+    order = Order.objects.create(
         ready_cake=cake,
         title=results["TITLE"],
         name=results["NAME"],
@@ -152,6 +164,7 @@ def create_detail_order(results):
         deliv_comment=results["DELIVCOMMENTS"],
         email=results["EMAIL"]
     )
+    return order
 
 
 def product_detail(request, pk):
@@ -164,8 +177,18 @@ def product_detail(request, pk):
     if request.POST:
         if "TITLE" in request.POST:
             results = request.POST
-            create_detail_order(results)
-            return render(request, 'payment.html', {'results': results})
+            order = create_detail_order(results)
+            print('create_order')
+            if create_order:
+                price = order.price
+                phone = order.phonenumber
+                email = order.email
+                title = order.title
+                order_number = order.pk
+
+                create_pay = pay(price, phone, email, title, order_number)
+                url = create_pay["confirmation"]["confirmation_url"]
+                return redirect(url)
     return render(request, 'detail.html', context)
 
 
@@ -184,5 +207,3 @@ def show_lk_page(request):
     return render(request, 'lk.html', context)
 
 
-def payment(request, context):
-    return render(request, 'payment.html', context)

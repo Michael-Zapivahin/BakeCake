@@ -37,9 +37,11 @@ python manage.py runserver
 ### Как запустить:
 
 Часть настроек проекта берётся из переменных окружения. Чтобы их определить, создайте файл `.env` рядом с `manage.py` и запишите туда данные в таком формате: `ПЕРЕМЕННАЯ=значение`.
-Доступны 2 переменные:
+Доступны 4 переменные:
 - `TELEGRAM_BOT_API_KEY` — Получите токен у [@BotFather](https://t.me/BotFather), вставте в `.env` например: `TELEGRAM_BOT_API_KEY=588535421721:AAFYtrO5YJhpUEXgyw6r1tr5fqZYY8ogS45I2E`.
 - `TELEGRAM_ADMIN_ID` - Получите свой ID у [@userinfobot](https://t.me/userinfobot)
+- `U_KASSA_TOKEN` -Токен ЮКАССА [Получить](https://yookassa.ru/docs/support/merchant/payments/implement/test-store#how-to-add-a-test-store)
+- `ACCOUT_ID` - ID магазина на ЮКАССА [Получить](https://yookassa.ru/docs/support/merchant/payments/implement/test-store#how-to-add-a-test-store)
 
 Запуск производится командой: 
 ```sh
